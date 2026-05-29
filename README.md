@@ -1,6 +1,13 @@
 # BeatFlow API — Backend
 
-Este repositorio contiene el código fuente del **Backend** de **BeatFlow**, una plataforma multimedia orientada a las tendencias, analítica social y hábitos de escucha musical. La API REST se encarga de gestionar la autenticación, persistencia de datos de usuario, playlists y actuar como puente con servicios de datos externos[cite: 72, 84, 94].
+Este repositorio contiene el código fuente del **Backend** de **BeatFlow**, una plataforma multimedia orientada a las tendencias, analítica social y hábitos de escucha musical. La API REST se encarga de gestionar la autenticación, persistencia de datos de usuario, playlists y actuar como puente con servicios de datos externos.
+
+## 👥 Integrantes
+- José de Jesús Almanza Contreras -> Developer 
+- Pablo Emilio Alonso Romero -> Developer
+- Josué Amador Ynfante -> Scrum Master
+- Victor Hassiel Avila Monjaraz -> Developer
+- Leonardo Gael Durán Torres -> Product Owner
 
 ---
 
