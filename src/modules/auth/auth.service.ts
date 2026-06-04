@@ -1,6 +1,7 @@
+import jwt from 'jsonwebtoken';
 import { prisma } from '../../database/client';
-import { hashPassword } from '../../core/utils/hash';
-import { RegisterInput } from './auth.validation';
+import { hashPassword, comparePassword } from '../../core/utils/hash';
+import { RegisterInput, LoginInput } from './auth.validation';
 
 export class AuthService {
   async register(input: RegisterInput) {
@@ -31,5 +32,41 @@ export class AuthService {
     // 4. Retornar el usuario sin la contraseña
     const { password, ...userWithoutPassword } = newUser;
     return userWithoutPassword;
+  }
+
+  async login(input: LoginInput) {
+    // 1. Buscar al usuario por correo
+    const user = await prisma.user.findUnique({
+      where: { email: input.email },
+    });
+
+    if (!user) {
+      const error = new Error('Credenciales incorrectas');
+      (error as any).statusCode = 401;
+      throw error;
+    }
+
+    // 2. Verificar la contraseña
+    const isPasswordValid = await comparePassword(input.password, user.password);
+    if (!isPasswordValid) {
+      const error = new Error('Credenciales incorrectas');
+      (error as any).statusCode = 401;
+      throw error;
+    }
+
+    // 3. Generar el token JWT
+    const jwtSecret = process.env.JWT_SECRET || 'beatflow_super_secret_token_key';
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      jwtSecret,
+      { expiresIn: '24h' }
+    );
+
+    // 4. Retornar token y datos de usuario sin contraseña
+    const { password, ...userWithoutPassword } = user;
+    return {
+      token,
+      user: userWithoutPassword,
+    };
   }
 }
