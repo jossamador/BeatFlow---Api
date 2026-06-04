@@ -1,5 +1,6 @@
 .env
-node_modules/
 node_modules
-dist/
+dist
 /src/generated/prisma
+beatflow_proyecto.md
+DC_3P_PR01.pdf
