@@ -36,4 +36,54 @@ router.get(
   }
 );
 
+router.get(
+  '/artists/trends',
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const limitQuery = req.query.limit;
+      const pageQuery = req.query.page;
+
+      const limit = limitQuery ? parseInt(limitQuery as string, 10) : 50;
+      const page = pageQuery ? parseInt(pageQuery as string, 10) : 1;
+
+      if (isNaN(limit) || limit <= 0) {
+        const error = new Error('El parámetro limit debe ser un número entero positivo');
+        (error as any).statusCode = 400;
+        throw error;
+      }
+
+      if (isNaN(page) || page <= 0) {
+        const error = new Error('El parámetro page debe ser un número entero positivo');
+        (error as any).statusCode = 400;
+        throw error;
+      }
+
+      const artists = await exploreService.getTopArtists(limit, page);
+      res.status(200).json(artists);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.get(
+  '/artists/detail',
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const artist = req.query.artist;
+
+      if (!artist || typeof artist !== 'string' || artist.trim() === '') {
+        const error = new Error('El parámetro artist (nombre del artista) es obligatorio');
+        (error as any).statusCode = 400;
+        throw error;
+      }
+
+      const artistInfo = await exploreService.getArtistInfo(artist);
+      res.status(200).json(artistInfo);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 export default router;
