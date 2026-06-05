@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import authRouter from './modules/auth/auth.router';
+import exploreRouter from './modules/explore/explore.router';
 import { errorHandler } from './core/middlewares/error.middleware';
 
 dotenv.config();
@@ -18,6 +19,7 @@ app.get('/', (req, res) => {
 
 // Routes
 app.use('/api/auth', authRouter);
+app.use('/api/explore', exploreRouter);
 
 // Global Error Handler
 app.use(errorHandler);
