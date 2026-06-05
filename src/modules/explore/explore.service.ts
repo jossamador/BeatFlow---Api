@@ -54,4 +54,103 @@ export class ExploreService {
       throw error;
     }
   }
+
+  async getTopArtists(limit: number = 50, page: number = 1) {
+    if (!this.apiKey) {
+      const error = new Error('La clave API de Last.fm no está configurada');
+      (error as any).statusCode = 500;
+      throw error;
+    }
+
+    const url = `${this.apiBaseUrl}?method=chart.gettopartists&api_key=${this.apiKey}&format=json&limit=${limit}&page=${page}`;
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        const error = new Error(`Error en API externa de Last.fm (Artistas): ${response.statusText}`);
+        (error as any).statusCode = response.status;
+        throw error;
+      }
+
+      const data = (await response.json()) as any;
+
+      if (!data.artists || !data.artists.artist) {
+        return [];
+      }
+
+      return data.artists.artist.map((artist: any, index: number) => {
+        const rank = (page - 1) * limit + (index + 1);
+
+        const imageObj = artist.image
+          ? artist.image.find((img: any) => img.size === 'extralarge') ||
+            artist.image.find((img: any) => img.size === 'large')
+          : null;
+        const imageUrl = imageObj ? imageObj['#text'] : null;
+
+        return {
+          rank,
+          name: artist.name,
+          imageUrl: imageUrl || '',
+          listeners: artist.listeners ? parseInt(artist.listeners, 10) : 0,
+          playcount: artist.playcount ? parseInt(artist.playcount, 10) : 0,
+          mbid: artist.mbid || null,
+        };
+      });
+    } catch (err: any) {
+      console.error('Error al consultar Last.fm Top Artists:', err);
+      const error = new Error(err.message || 'Error al obtener artistas populares');
+      (error as any).statusCode = err.statusCode || 500;
+      throw error;
+    }
+  }
+
+  async getArtistInfo(artistName: string) {
+    if (!this.apiKey) {
+      const error = new Error('La clave API de Last.fm no está configurada');
+      (error as any).statusCode = 500;
+      throw error;
+    }
+
+    const url = `${this.apiBaseUrl}?method=artist.getinfo&api_key=${this.apiKey}&format=json&artist=${encodeURIComponent(artistName)}`;
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        const error = new Error(`Error en API externa de Last.fm (Info Artista): ${response.statusText}`);
+        (error as any).statusCode = response.status;
+        throw error;
+      }
+
+      const data = (await response.json()) as any;
+
+      if (!data.artist) {
+        const error = new Error('Artista no encontrado');
+        (error as any).statusCode = 404;
+        throw error;
+      }
+
+      const artist = data.artist;
+
+      const imageObj = artist.image
+        ? artist.image.find((img: any) => img.size === 'extralarge') ||
+          artist.image.find((img: any) => img.size === 'large')
+        : null;
+      const imageUrl = imageObj ? imageObj['#text'] : null;
+
+      return {
+        name: artist.name,
+        mbid: artist.mbid || null,
+        imageUrl: imageUrl || '',
+        listeners: artist.stats?.listeners ? parseInt(artist.stats.listeners, 10) : 0,
+        playcount: artist.stats?.playcount ? parseInt(artist.stats.playcount, 10) : 0,
+        summary: artist.bio?.summary || '',
+        content: artist.bio?.content || '',
+      };
+    } catch (err: any) {
+      console.error(`Error al consultar Last.fm info para el artista ${artistName}:`, err);
+      const error = new Error(err.message || 'Error al obtener información del artista');
+      (error as any).statusCode = err.statusCode || 500;
+      throw error;
+    }
+  }
 }
