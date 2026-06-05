@@ -153,4 +153,104 @@ export class ExploreService {
       throw error;
     }
   }
+
+  async searchTracks(query: string, limit: number = 20, page: number = 1) {
+    if (!this.apiKey) {
+      const error = new Error('La clave API de Last.fm no está configurada');
+      (error as any).statusCode = 500;
+      throw error;
+    }
+
+    const url = `${this.apiBaseUrl}?method=track.search&api_key=${this.apiKey}&format=json&track=${encodeURIComponent(query)}&limit=${limit}&page=${page}`;
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        const error = new Error(`Error en API externa de Last.fm (Buscar Canciones): ${response.statusText}`);
+        (error as any).statusCode = response.status;
+        throw error;
+      }
+
+      const data = (await response.json()) as any;
+
+      if (!data.results || !data.results.trackmatches || !data.results.trackmatches.track) {
+        return [];
+      }
+
+      // Last.fm devuelve un arreglo de tracks o un solo track
+      const tracks = Array.isArray(data.results.trackmatches.track)
+        ? data.results.trackmatches.track
+        : [data.results.trackmatches.track];
+
+      return tracks.map((track: any) => {
+        const imageObj = track.image
+          ? track.image.find((img: any) => img.size === 'extralarge') ||
+            track.image.find((img: any) => img.size === 'large')
+          : null;
+        const imageUrl = imageObj ? imageObj['#text'] : null;
+
+        return {
+          name: track.name,
+          artist: track.artist || 'Unknown Artist',
+          imageUrl: imageUrl || '',
+          listeners: track.listeners ? parseInt(track.listeners, 10) : 0,
+          mbid: track.mbid || null,
+        };
+      });
+    } catch (err: any) {
+      console.error(`Error al buscar canciones con la consulta "${query}":`, err);
+      const error = new Error(err.message || 'Error al buscar canciones');
+      (error as any).statusCode = err.statusCode || 500;
+      throw error;
+    }
+  }
+
+  async searchArtists(query: string, limit: number = 20, page: number = 1) {
+    if (!this.apiKey) {
+      const error = new Error('La clave API de Last.fm no está configurada');
+      (error as any).statusCode = 500;
+      throw error;
+    }
+
+    const url = `${this.apiBaseUrl}?method=artist.search&api_key=${this.apiKey}&format=json&artist=${encodeURIComponent(query)}&limit=${limit}&page=${page}`;
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        const error = new Error(`Error en API externa de Last.fm (Buscar Artistas): ${response.statusText}`);
+        (error as any).statusCode = response.status;
+        throw error;
+      }
+
+      const data = (await response.json()) as any;
+
+      if (!data.results || !data.results.artistmatches || !data.results.artistmatches.artist) {
+        return [];
+      }
+
+      const artists = Array.isArray(data.results.artistmatches.artist)
+        ? data.results.artistmatches.artist
+        : [data.results.artistmatches.artist];
+
+      return artists.map((artist: any) => {
+        const imageObj = artist.image
+          ? artist.image.find((img: any) => img.size === 'extralarge') ||
+            artist.image.find((img: any) => img.size === 'large')
+          : null;
+        const imageUrl = imageObj ? imageObj['#text'] : null;
+
+        return {
+          name: artist.name,
+          imageUrl: imageUrl || '',
+          listeners: artist.listeners ? parseInt(artist.listeners, 10) : 0,
+          mbid: artist.mbid || null,
+        };
+      });
+    } catch (err: any) {
+      console.error(`Error al buscar artistas con la consulta "${query}":`, err);
+      const error = new Error(err.message || 'Error al buscar artistas');
+      (error as any).statusCode = err.statusCode || 500;
+      throw error;
+    }
+  }
 }
