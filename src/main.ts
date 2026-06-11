@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import authRouter from './modules/auth/auth.router';
 import exploreRouter from './modules/explore/explore.router';
 import playlistsRouter from './modules/playlists/playlists.router';
+import favoritesRouter from './modules/favorites/favorites.router';
 import { errorHandler } from './core/middlewares/error.middleware';
 
 dotenv.config();
@@ -22,6 +23,7 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRouter);
 app.use('/api/explore', exploreRouter);
 app.use('/api/playlists', playlistsRouter);
+app.use('/api/favorites', favoritesRouter);
 
 // Global Error Handler
 app.use(errorHandler);
