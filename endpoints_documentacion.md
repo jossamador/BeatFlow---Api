@@ -541,6 +541,57 @@ Endpoints protegidos para registrar reproducciones y consultar métricas agregad
     ```
   * **`400 Bad Request`:** El parámetro `limit` no es un número entero positivo.
 
+---
 
+## 7. Perfil (`/api/profile`)
 
+Endpoints protegidos para obtener y actualizar la información de perfil del usuario.
 
+* **Cabecera obligatoria para todos los endpoints:**
+  * `Authorization: Bearer <JWT_TOKEN>`
+
+### ➔ Obtener Datos del Perfil
+* **Ruta:** `GET /api/profile`
+* **Respuestas:**
+  * **`200 OK`:** Devuelve los datos del perfil del usuario actual (excluyendo la contraseña).
+    ```json
+    {
+      "id": "6017070e-2985-...",
+      "name": "Juan Perez",
+      "email": "juan@example.com",
+      "photo": "https://images.unsplash.com/.../photo.jpg",
+      "createdAt": "2026-06-04T06:49:42.691Z",
+      "updatedAt": "2026-06-11T16:02:37.718Z"
+    }
+    ```
+  * **`401 Unauthorized`:** Token JWT ausente o inválido.
+  * **`404 Not Found`:** El usuario no existe en la base de datos.
+
+### ➔ Actualizar Datos del Perfil
+* **Ruta:** `PUT /api/profile`
+* **Cuerpo de la Petición (JSON):**
+  * Todos los campos son opcionales.
+  ```json
+  {
+    "name": "Juan Modificado",
+    "photo": "https://images.unsplash.com/.../new-photo.jpg" // o null para remover la foto
+  }
+  ```
+* **Respuestas:**
+  * **`200 OK`:** Perfil actualizado correctamente. Retorna un mensaje de confirmación y el objeto de usuario actualizado sin contraseña.
+    ```json
+    {
+      "message": "Perfil actualizado con éxito",
+      "user": {
+        "id": "6017070e-2985-...",
+        "name": "Juan Modificado",
+        "email": "juan@example.com",
+        "photo": "https://images.unsplash.com/.../new-photo.jpg",
+        "createdAt": "2026-06-04T06:49:42.691Z",
+        "updatedAt": "2026-06-11T16:02:37.718Z"
+      }
+    }
+    ```
+  * **`400 Bad Request`:** Payload inválido (ej. nombre vacío o foto con formato de URL inválido).
+  * **`401 Unauthorized`:** Token JWT ausente o inválido.
+  * **`404 Not Found`:** El usuario no existe en la base de datos.
