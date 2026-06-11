@@ -469,5 +469,78 @@ La API expone 6 categorías fijas de estados de ánimo y actividades con metadat
   * **`400 Bad Request`:** El parámetro `limit` o `page` no son números enteros positivos.
   * **`404 Not Found`:** El identificador de `:mood` no es válido o no existe en el catálogo.
 
+---
+
+## 6. Analíticas e Historial (`/api/analytics`)
+
+Endpoints protegidos para registrar reproducciones y consultar métricas agregadas personales del usuario.
+
+* **Cabecera obligatoria para todos los endpoints:**
+  * `Authorization: Bearer <JWT_TOKEN>`
+
+### ➔ Registrar Reproducción (Log Play)
+* **Ruta:** `POST /api/analytics/history`
+* **Cuerpo de la Petición (JSON):**
+  ```json
+  {
+    "trackName": "Lovesong",
+    "artistName": "The Cure",
+    "duration": 210 // Duración de reproducción en segundos
+  }
+  ```
+* **Respuestas:**
+  * **`201 Created`:** Reproducción registrada correctamente.
+    ```json
+    {
+      "message": "Reproducción registrada con éxito",
+      "historyEntry": {
+        "id": "53aa2f94-1923-...",
+        "userId": "6017070e-2985-...",
+        "trackName": "Lovesong",
+        "artistName": "The Cure",
+        "duration": 210,
+        "playedAt": "2026-06-11T15:45:01.000Z"
+      }
+    }
+    ```
+  * **`400 Bad Request`:** Payload inválido (ej. duración negativa o campos vacíos).
+  * **`401 Unauthorized`:** Token JWT ausente o inválido.
+
+### ➔ Obtener Resumen Estadístico (Summary)
+* **Ruta:** `GET /api/analytics/stats/summary`
+* **Respuestas:**
+  * **`200 OK`:** Devuelve el tiempo total de escucha (en segundos) y la cantidad de canciones reproducidas.
+    ```json
+    {
+      "totalListeningTime": 1230,
+      "totalPlays": 6
+    }
+    ```
+
+### ➔ Obtener Artistas Favoritos (Top Artists)
+* **Ruta:** `GET /api/analytics/stats/top-artists`
+* **Parámetros de consulta (Query Params):**
+  * `limit` (Opcional, número entero positivo para limitar el ranking, por defecto `10`).
+* **Respuestas:**
+  * **`200 OK`:** Devuelve el ranking estructurado listo para graficar en Nebular.
+    ```json
+    [
+      {
+        "artist": "The Cure",
+        "plays": 3
+      },
+      {
+        "artist": "Coldplay",
+        "plays": 2
+      },
+      {
+        "artist": "Olivia Rodrigo",
+        "plays": 1
+      }
+    ]
+    ```
+  * **`400 Bad Request`:** El parámetro `limit` no es un número entero positivo.
+
+
 
 

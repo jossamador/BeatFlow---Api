@@ -20,6 +20,7 @@ model User {
   updatedAt DateTime   @updatedAt
   playlists Playlist[]
   favorites Favorite[]
+  listeningHistory ListeningHistory[]
 
   @@map("users")
 }
@@ -63,4 +64,17 @@ model Favorite {
   @@unique([userId, name, artist])
   @@map("favorites")
 }
+
+model ListeningHistory {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trackName  String
+  artistName String
+  duration   Int      // Duración en segundos
+  playedAt   DateTime @default(now())
+
+  @@map("listening_history")
+}
+
 
