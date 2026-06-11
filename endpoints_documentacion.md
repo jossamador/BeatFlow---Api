@@ -321,3 +321,93 @@ La URL en desarrollo local es: **`http://localhost:3000`**
   * **`403 Forbidden`:** No eres propietario de la playlist.
   * **`404 Not Found`:** Playlist o canción no encontradas.
 
+---
+
+## 4. Gestión de Favoritos (`/api/favorites`)
+
+* **Cabecera obligatoria para todos los endpoints:**
+  * `Authorization: Bearer <JWT_TOKEN>`
+
+### ➔ Obtener Canciones Favoritas
+* **Ruta:** `GET /api/favorites`
+* **Respuestas:**
+  * **`200 OK`:** Retorna la lista de todas las canciones marcadas como favoritas por el usuario autenticado, ordenadas por fecha de adición descendente.
+    ```json
+    [
+      {
+        "id": "53aa2f94-1923-...",
+        "userId": "6017070e-2985-...",
+        "name": "Lovesong",
+        "artist": "The Cure",
+        "imageUrl": "https://lastfm.freetls.fastly.net/...",
+        "mbid": "abc-123-xyz",
+        "createdAt": "2026-06-11T07:14:24.136Z"
+      }
+    ]
+    ```
+
+### ➔ Guardar Canción en Favoritos
+* **Ruta:** `POST /api/favorites`
+* **Cuerpo de la Petición (JSON):**
+  ```json
+  {
+    "name": "Lovesong",
+    "artist": "The Cure",
+    "imageUrl": "https://lastfm.freetls.fastly.net/...", // Opcional
+    "mbid": "abc-123-xyz"                              // Opcional
+  }
+  ```
+* **Respuestas:**
+  * **`201 Created`:** Canción guardada o recuperada exitosamente (si ya existía).
+    ```json
+    {
+      "message": "Canción guardada en favoritos con éxito",
+      "favorite": {
+        "id": "53aa2f94-1923-...",
+        "userId": "6017070e-2985-...",
+        "name": "Lovesong",
+        "artist": "The Cure",
+        "imageUrl": "https://lastfm.freetls.fastly.net/...",
+        "mbid": "abc-123-xyz",
+        "createdAt": "2026-06-11T07:14:24.136Z"
+      }
+    }
+    ```
+  * **`400 Bad Request`:** Nombre de canción o artista ausentes.
+  * **`401 Unauthorized`:** Token JWT ausente o inválido.
+
+### ➔ Verificar si una Canción es Favorita
+* **Ruta:** `GET /api/favorites/check`
+* **Parámetros de consulta (Query Params):**
+  * `name` (**Obligatorio**, nombre de la canción).
+  * `artist` (**Obligatorio**, nombre del artista).
+* **Respuestas:**
+  * **`200 OK`:** Retorna si la canción es favorita del usuario actual y su ID correspondiente.
+    ```json
+    {
+      "isFavorite": true,
+      "favoriteId": "53aa2f94-1923-..."
+    }
+    ```
+    *Si no está en favoritos:*
+    ```json
+    {
+      "isFavorite": false,
+      "favoriteId": null
+    }
+    ```
+  * **`400 Bad Request`:** Parámetro `name` o `artist` faltantes.
+
+### ➔ Eliminar Canción de Favoritos
+* **Ruta:** `DELETE /api/favorites/:id`
+* **Respuestas:**
+  * **`200 OK`:** Canción eliminada con éxito de la sección de favoritos.
+    ```json
+    {
+      "message": "Canción eliminada de favoritos con éxito"
+    }
+    ```
+  * **`403 Forbidden`:** No eres el propietario del registro de favorito.
+  * **`404 Not Found`:** Registro de favorito no encontrado.
+
+
