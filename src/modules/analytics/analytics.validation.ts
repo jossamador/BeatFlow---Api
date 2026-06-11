@@ -8,7 +8,7 @@ export const logPlaySchema = z.object({
     .string()
     .min(1, 'El nombre del artista es obligatorio'),
   duration: z
-    .number({ required_error: 'La duración es obligatoria' })
+    .number()
     .int('La duración debe ser un número entero')
     .positive('La duración debe ser mayor a 0 segundos'),
 });
