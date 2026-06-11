@@ -410,4 +410,64 @@ La URL en desarrollo local es: **`http://localhost:3000`**
   * **`403 Forbidden`:** No eres el propietario del registro de favorito.
   * **`404 Not Found`:** Registro de favorito no encontrado.
 
+---
+
+## 5. Exploración por Moods (`/api/explore/moods`)
+
+Endpoints públicos para descubrir música recomendada según emociones o actividades.
+
+### Catálogo de Moods Disponibles
+La API expone 6 categorías fijas de estados de ánimo y actividades con metadatos para renderizado dinámico en el cliente:
+
+| ID | Nombre | Emoji | Descripción | Gradiente (CSS Color) | Tag de Last.fm |
+| :--- | :--- | :---: | :--- | :--- | :--- |
+| `happy` | Feliz | 😊 | Canciones alegres para subir el ánimo y llenarte de energía positiva. | `linear-gradient(135deg, #FAD961 0%, #F76B1C 100%)` | `happy` |
+| `sad` | Triste | 😢 | Melodías melancólicas y reflexivas ideales para momentos íntimos. | `linear-gradient(135deg, #30CFD0 0%, #330867 100%)` | `sad` |
+| `chill` | Relajado | 🍃 | Música ambiental y relajante para desconectar del estrés diario. | `linear-gradient(135deg, #11998e 0%, #38ef7d 100%)` | `chillout` |
+| `energetic` | Enérgico | ⚡ | Sonidos potentes y ritmos rápidos para motivarte al máximo. | `linear-gradient(135deg, #FF512F 0%, #DD2476 100%)` | `energetic` |
+| `focus` | Concentración | 🧠 | Pistas instrumentales y tranquilas para estudiar o trabajar. | `linear-gradient(135deg, #70A1FF 0%, #1E90FF 100%)` | `ambient` |
+| `party` | Fiesta | 🎉 | Los mejores ritmos de club y baile para encender la pista. | `linear-gradient(135deg, #F857A6 0%, #FF5858 100%)` | `party` |
+
+---
+
+### ➔ Obtener Categorías de Moods
+* **Ruta:** `GET /api/explore/moods`
+* **Respuestas:**
+  * **`200 OK`:** Retorna la lista de moods y metadatos visuales.
+    ```json
+    [
+      {
+        "id": "happy",
+        "name": "Feliz",
+        "emoji": "😊",
+        "description": "Canciones alegres para subir el ánimo y llenarte de energía positiva.",
+        "color": "linear-gradient(135deg, #FAD961 0%, #F76B1C 100%)"
+      },
+      ...
+    ]
+    ```
+
+### ➔ Obtener Canciones Recomendadas por Mood
+* **Ruta:** `GET /api/explore/moods/:mood/tracks`
+* **Parámetros de consulta (Query Params):**
+  * `limit` (Opcional, número entero positivo, por defecto `30`).
+  * `page` (Opcional, número entero positivo, por defecto `1`).
+* **Respuestas:**
+  * **`200 OK`:** Retorna el listado de canciones recomendadas para esa emoción.
+    ```json
+    [
+      {
+        "rank": 1,
+        "name": "Send Me On My Way",
+        "artist": "Rusted Root",
+        "imageUrl": "https://lastfm.freetls.fastly.net/i/u/300x300/lovesong.png",
+        "listeners": 1283921,
+        "mbid": "162832ce-..."
+      }
+    ]
+    ```
+  * **`400 Bad Request`:** El parámetro `limit` o `page` no son números enteros positivos.
+  * **`404 Not Found`:** El identificador de `:mood` no es válido o no existe en el catálogo.
+
+
 

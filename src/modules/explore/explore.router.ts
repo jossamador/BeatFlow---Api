@@ -150,4 +150,57 @@ router.get(
   }
 );
 
+// ➔ Obtener categorías de moods
+router.get(
+  '/moods',
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const categories = exploreService.getMoodCategories();
+      res.status(200).json(categories);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// ➔ Obtener canciones de un mood
+router.get(
+  '/moods/:mood/tracks',
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const moodId = req.params.mood as string;
+      const limitQuery = req.query.limit;
+      const pageQuery = req.query.page;
+
+      const limit = limitQuery ? parseInt(limitQuery as string, 10) : 30;
+      const page = pageQuery ? parseInt(pageQuery as string, 10) : 1;
+
+      if (isNaN(limit) || limit <= 0) {
+        const error = new Error('El parámetro limit debe ser un número entero positivo');
+        (error as any).statusCode = 400;
+        throw error;
+      }
+
+      if (isNaN(page) || page <= 0) {
+        const error = new Error('El parámetro page debe ser un número entero positivo');
+        (error as any).statusCode = 400;
+        throw error;
+      }
+
+      const mood = exploreService.getMoodById(moodId);
+      if (!mood) {
+        const error = new Error('Mood no encontrado');
+        (error as any).statusCode = 404;
+        throw error;
+      }
+
+      const tracks = await exploreService.getTracksByMood(mood.tag, limit, page);
+      res.status(200).json(tracks);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 export default router;
+

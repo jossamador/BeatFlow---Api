@@ -253,4 +253,122 @@ export class ExploreService {
       throw error;
     }
   }
+
+  private readonly MOODS = [
+    {
+      id: 'happy',
+      name: 'Feliz',
+      emoji: '😊',
+      description: 'Canciones alegres para subir el ánimo y llenarte de energía positiva.',
+      color: 'linear-gradient(135deg, #FAD961 0%, #F76B1C 100%)',
+      tag: 'happy',
+    },
+    {
+      id: 'sad',
+      name: 'Triste',
+      emoji: '😢',
+      description: 'Melodías melancólicas y reflexivas ideales para momentos íntimos.',
+      color: 'linear-gradient(135deg, #30CFD0 0%, #330867 100%)',
+      tag: 'sad',
+    },
+    {
+      id: 'chill',
+      name: 'Relajado',
+      emoji: '🍃',
+      description: 'Música ambiental y relajante para desconectar del estrés diario.',
+      color: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
+      tag: 'chillout',
+    },
+    {
+      id: 'energetic',
+      name: 'Enérgico',
+      emoji: '⚡',
+      description: 'Sonidos potentes y ritmos rápidos para motivarte al máximo.',
+      color: 'linear-gradient(135deg, #FF512F 0%, #DD2476 100%)',
+      tag: 'energetic',
+    },
+    {
+      id: 'focus',
+      name: 'Concentración',
+      emoji: '🧠',
+      description: 'Pistas instrumentales y tranquilas para estudiar o trabajar.',
+      color: 'linear-gradient(135deg, #70A1FF 0%, #1E90FF 100%)',
+      tag: 'ambient',
+    },
+    {
+      id: 'party',
+      name: 'Fiesta',
+      emoji: '🎉',
+      description: 'Los mejores ritmos de club y baile para encender la pista.',
+      color: 'linear-gradient(135deg, #F857A6 0%, #FF5858 100%)',
+      tag: 'party',
+    }
+  ];
+
+  getMoodCategories() {
+    return this.MOODS.map(({ id, name, emoji, description, color }) => ({
+      id,
+      name,
+      emoji,
+      description,
+      color,
+    }));
+  }
+
+  getMoodById(id: string) {
+    return this.MOODS.find(m => m.id === id) || null;
+  }
+
+  async getTracksByMood(tag: string, limit: number = 30, page: number = 1) {
+    if (!this.apiKey) {
+      const error = new Error('La clave API de Last.fm no está configurada');
+      (error as any).statusCode = 500;
+      throw error;
+    }
+
+    const url = `${this.apiBaseUrl}?method=tag.gettoptracks&api_key=${this.apiKey}&format=json&tag=${encodeURIComponent(tag)}&limit=${limit}&page=${page}`;
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        const error = new Error(`Error en API externa de Last.fm (Moods): ${response.statusText}`);
+        (error as any).statusCode = response.status;
+        throw error;
+      }
+
+      const data = (await response.json()) as any;
+
+      if (!data.tracks || !data.tracks.track) {
+        return [];
+      }
+
+      const tracks = Array.isArray(data.tracks.track)
+        ? data.tracks.track
+        : [data.tracks.track];
+
+      return tracks.map((track: any, index: number) => {
+        const rank = (page - 1) * limit + (index + 1);
+        const imageObj = track.image
+          ? track.image.find((img: any) => img.size === 'extralarge') ||
+            track.image.find((img: any) => img.size === 'large')
+          : null;
+        const imageUrl = imageObj ? imageObj['#text'] : null;
+
+        return {
+          rank,
+          name: track.name,
+          artist: track.artist ? track.artist.name : 'Unknown Artist',
+          imageUrl: imageUrl || '',
+          listeners: track.listeners ? parseInt(track.listeners, 10) : 0,
+          mbid: track.mbid || null,
+        };
+      });
+    } catch (err: any) {
+      console.error(`Error al obtener canciones para el mood (tag: ${tag}):`, err);
+      const error = new Error(err.message || 'Error al obtener canciones por mood');
+      (error as any).statusCode = err.statusCode || 500;
+      throw error;
+    }
+  }
 }
+
