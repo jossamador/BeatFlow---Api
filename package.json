@@ -1,0 +1,43 @@
+{
+  "name": "beatflow-api",
+  "version": "1.0.0",
+  "description": "Este repositorio contiene el código fuente del **Backend** de **BeatFlow**, una plataforma multimedia orientada a las tendencias, analítica social y hábitos de escucha musical. La API REST se encarga de gestionar la autenticación, persistencia de datos de usuario, playlists y actuar como puente con servicios de datos externos.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/main.ts",
+    "build": "tsc",
+    "start": "node dist/main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jossamador/BeatFlow---Api.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/jossamador/BeatFlow---Api/issues"
+  },
+  "homepage": "https://github.com/jossamador/BeatFlow---Api#readme",
+  "dependencies": {
+    "@prisma/client": "^6.19.3",
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^25.9.1",
+    "prisma": "^6.19.3",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^6.0.3"
+  }
+}
