@@ -2,6 +2,11 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import authRouter from './modules/auth/auth.router';
+import exploreRouter from './modules/explore/explore.router';
+import playlistsRouter from './modules/playlists/playlists.router';
+import favoritesRouter from './modules/favorites/favorites.router';
+import analyticsRouter from './modules/analytics/analytics.router';
+import profileRouter from './modules/profile/profile.router';
 import { errorHandler } from './core/middlewares/error.middleware';
 
 dotenv.config();
@@ -18,6 +23,11 @@ app.get('/', (req, res) => {
 
 // Routes
 app.use('/api/auth', authRouter);
+app.use('/api/explore', exploreRouter);
+app.use('/api/playlists', playlistsRouter);
+app.use('/api/favorites', favoritesRouter);
+app.use('/api/analytics', analyticsRouter);
+app.use('/api/profile', profileRouter);
 
 // Global Error Handler
 app.use(errorHandler);
